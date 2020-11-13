@@ -1,5 +1,9 @@
 package lesson4
 
+import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
+import java.util.*
+
 /**
  * Префиксное дерево для строк
  */
@@ -7,6 +11,10 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
 
     private class Node {
         val children: MutableMap<Char, Node> = linkedMapOf()
+
+        override fun toString(): String {
+            return this.children.toString()
+        }
     }
 
     private var root = Node()
@@ -68,8 +76,42 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
      *
      * Сложная
      */
-    override fun iterator(): MutableIterator<String> {
-        TODO()
+    override fun iterator(): MutableIterator<String> = TrieIterator()
+
+    inner class TrieIterator : MutableIterator<String> {
+
+        private val queue: Queue<String> = LinkedList()
+        private var currentKey = ""
+        private var removed = false
+
+        init {
+            queueFill(root, "")
+        }
+
+        private fun queueFill(node: Node, prefix: String) {
+            for ((key, value) in node.children) {
+                if (key == 0.toChar())
+                    queue.add(prefix)
+                else
+                    queueFill(value, prefix + key)
+            }
+        }
+
+        override fun hasNext(): Boolean = queue.isNotEmpty()
+
+        override fun next(): String {
+            if (queue.isEmpty()) throw IllegalStateException()
+            currentKey = queue.poll()
+            removed = false
+            return currentKey
+        }
+
+        override fun remove() {
+            if (currentKey == "" || removed) throw IllegalStateException()
+            remove(currentKey)
+            removed = true
+        }
     }
 
 }
+
