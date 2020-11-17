@@ -93,3 +93,8 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         TODO("not implemented")
     }
 }
+
+fun main() {
+    KtOpenAddressingSet<Int>(10)
+}
+

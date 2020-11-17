@@ -88,6 +88,9 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             queueFill(root, "")
         }
 
+        // Трудоемкость O(1)
+        // Ресурсоемкость O(1)
+        // string queue pre-fill
         private fun queueFill(node: Node, prefix: String) {
             for ((key, value) in node.children) {
                 if (key == 0.toChar())
@@ -97,8 +100,12 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             }
         }
 
+        // Трудоемкость O(1)
+        // Ресурсоемкость O(1)
         override fun hasNext(): Boolean = queue.isNotEmpty()
 
+        // Трудоемкость O(N)
+        // Ресурсоемкость O(N)
         override fun next(): String {
             if (queue.isEmpty()) throw IllegalStateException()
             currentKey = queue.poll()
@@ -106,6 +113,8 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             return currentKey
         }
 
+        // Трудоемкость O(N)
+        // Ресурсоемкость O(N)
         override fun remove() {
             if (currentKey == "" || removed) throw IllegalStateException()
             remove(currentKey)
@@ -114,4 +123,3 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
     }
 
 }
-
