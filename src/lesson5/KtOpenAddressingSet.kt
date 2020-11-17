@@ -1,5 +1,7 @@
 package lesson5
 
+import java.lang.IllegalStateException
+
 /**
  * Множество(таблица) с открытой адресацией на 2^bits элементов без возможности роста.
  */
@@ -51,7 +53,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         val startingIndex = element.startingIndex()
         var index = startingIndex
         var current = storage[index]
-        while (current != null) {
+        while (current != null && current != EMPTY) {
             if (current == element) {
                 return false
             }
@@ -75,8 +77,26 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      *
      * Средняя
      */
+
+    private object EMPTY
+
+    // Трудоемкость от O(1) до O(N)
+    // Ресурсоемкость O(1)
     override fun remove(element: T): Boolean {
-        TODO("not implemented")
+        val startingIndex = element.startingIndex()
+        var index = startingIndex
+        var current = storage[index]
+        while (current != null) {
+            if (current == element) {
+                storage[index] = EMPTY
+                size--
+                return true
+            }
+            index = (index + 1) % capacity
+            if (index == startingIndex) return false
+            current = storage[index]
+        }
+        return false
     }
 
     /**
@@ -89,12 +109,52 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      *
      * Средняя (сложная, если поддержан и remove тоже)
      */
-    override fun iterator(): MutableIterator<T> {
-        TODO("not implemented")
+    override fun iterator(): MutableIterator<T> = KtOpenAddressingSetIterator()
+
+    inner class KtOpenAddressingSetIterator : MutableIterator<T> {
+
+        private var index = 0
+        private var current: T? = null
+        private var removed = true
+
+        init {
+            calcNextIndex() // finds index of first existing element
+        }
+
+        // Трудоемкость от O(1) до O(N)
+        // Ресурсоемкость O(1)
+        private fun calcNextIndex() {   // finds index of next existing element
+            while (index < capacity && (storage[index] == null || storage[index] == EMPTY))
+                index++
+        }
+
+        // Трудоемкость O(1)
+        // Ресурсоемкость O(1)
+        override fun hasNext(): Boolean {
+            return index < capacity
+        }
+
+        // Трудоемкость от O(1) до O(N)
+        // Ресурсоемкость O(1)
+        override fun next(): T {
+            check(hasNext())
+            @Suppress("UNCHECKED_CAST")
+            val result = storage[index] as T
+            current = result
+            index++
+            calcNextIndex()
+            removed = false // allows removing of current element
+            return result
+        }
+
+        // Трудоемкость от O(1) до O(N)
+        // Ресурсоемкость O(1)
+        override fun remove() {
+            check(!removed)    // double remove of same element prevention
+            removed = true
+            remove(current)
+        }
     }
 }
 
-fun main() {
-    KtOpenAddressingSet<Int>(10)
-}
 
