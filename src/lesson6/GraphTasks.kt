@@ -2,6 +2,10 @@
 
 package lesson6
 
+import java.io.File
+import java.util.*
+
+
 /**
  * Эйлеров цикл.
  * Средняя
@@ -147,6 +151,45 @@ fun Graph.longestSimplePath(): Path {
  * В файле буквы разделены пробелами, строки -- переносами строк.
  * Остальные символы ни в файле, ни в словах не допускаются.
  */
+
+// Трудоемкость O(W * N * L)
+// Ресурсоемкость O(W + N + L)
+// W - number of words, N - number of letters, L - average word length
 fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
-    TODO()
+    val data = File(inputName).readLines().map { it.split(' ').map { letter -> letter.first() } }
+    val offsets = listOf(Pair(-1, 0), Pair(0, 1), Pair(1, 0), Pair(0, -1))
+    val result = mutableSetOf<String>()
+    for (word in words) {
+        for (lineNumber in data.indices)
+            for (letterNumber in data[lineNumber].indices) {
+                val checked = mutableListOf<Pair<Int, Int>>()
+                fun findNext(y: Int, x: Int, index: Int): Boolean {
+                    for ((dy, dx) in offsets) {
+                        val newY = y + dy
+                        val newX = x + dx
+                        val char = word[index]
+                        if (newY in data.indices && newX in data[0].indices && !checked.contains(Pair(newY, newX))) {
+                            if (data[newY][newX] == char) {
+                                checked.add(Pair(newY, newX))
+                                if (index == (word.length - 1))
+                                    return true
+                                if (findNext(newY, newX, index + 1))
+                                    return true
+                                else
+                                    checked.remove(Pair(newY, newX))
+                            }
+                        }
+                    }
+                    return false
+                }
+                if (data[lineNumber][letterNumber] == word.first()) {
+                    checked.add(Pair(lineNumber, letterNumber))
+                    if (findNext(lineNumber, letterNumber, 1))
+                        result.add(word)
+                }
+            }
+    }
+    println("result $result")
+    return result
 }
+
