@@ -1,5 +1,6 @@
 package lesson5
 
+import ru.spbstu.kotlin.generate.util.nextByte
 import ru.spbstu.kotlin.generate.util.nextString
 import java.util.*
 import kotlin.math.abs
@@ -122,6 +123,81 @@ abstract class AbstractOpenAddressingSetTest {
 
     protected fun doIteratorRemoveTest() {
         val random = Random()
+        // my test
+        for (iteration in 1..100) {
+            val controlSet = mutableSetOf<String>()
+            for (i in 1..15)
+                controlSet.add(random.nextString("qwertyuiopasdfghjklzxcvbnm", 1, 15))
+            val openAddressingSet = create<String>(random.nextInt(6) + 4)
+            assertFalse(
+                openAddressingSet.iterator().hasNext(),
+                "Iterator of an empty set should not have any next elements."
+            )
+            for (element in controlSet)
+                openAddressingSet += element
+            assertEquals(controlSet.size, openAddressingSet.size)
+
+            val iterator = openAddressingSet.iterator()
+            while (iterator.hasNext()) {
+                val toRemove = iterator.next()
+                if (random.nextBoolean()) {
+                    controlSet.remove(toRemove)
+                    iterator.remove()
+                    assertFailsWith<IllegalStateException>("OpenAddressingSet.remove() was successfully called twice in a row.") {
+                        iterator.remove()
+                    }
+                    assertEquals(
+                        controlSet.size, openAddressingSet.size,
+                        "The size of the set is incorrect: was ${openAddressingSet.size}, should've been ${controlSet.size}."
+                    )
+                    assertFalse(
+                        openAddressingSet.contains(toRemove),
+                        "OpenAddressingSet set has the element $toRemove from the control set after removing."
+                    )
+                }
+            }
+            assertEquals(
+                controlSet.size, openAddressingSet.size,
+                "The size of the set is incorrect: was ${openAddressingSet.size}, should've been ${controlSet.size}."
+            )
+            for (element in controlSet) {
+                assertTrue(
+                    openAddressingSet.contains(element),
+                    "OpenAddressingSet set doesn't have the element $element from the control set."
+                )
+            }
+            for (element in openAddressingSet) {
+                assertTrue(
+                    controlSet.contains(element),
+                    "OpenAddressingSet set has the element $element that is not in control set."
+                )
+            }
+            while (iterator.hasNext()) {
+                val toRemove = iterator.next()
+                controlSet.remove(toRemove)
+                iterator.remove()
+                assertFailsWith<IllegalStateException>("OpenAddressingSet.remove() was successfully called twice in a row.") {
+                    iterator.remove()
+                }
+                assertEquals(
+                    controlSet.size, openAddressingSet.size,
+                    "The size of the set is incorrect: was ${openAddressingSet.size}, should've been ${controlSet.size}."
+                )
+                assertFalse(
+                    openAddressingSet.contains(toRemove),
+                    "openAddressingSet has the element $toRemove from the control set after removing."
+                )
+            }
+            assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
+                iterator.next()
+            }
+            assertFalse(
+                iterator.hasNext(),
+                "Iterator of an empty set should not have any next elements."
+            )
+        }
+        // end of my test
+
         for (iteration in 1..100) {
             val controlSet = mutableSetOf<String>()
             val removeIndex = random.nextInt(15) + 1

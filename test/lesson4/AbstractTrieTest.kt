@@ -114,8 +114,6 @@ abstract class AbstractTrieTest {
 
     protected fun doIteratorRemoveTest() {
         // my test
-        implementationTest { create().iterator().hasNext() }
-        implementationTest { create().iterator().next() }
         implementationTest { create().iterator().remove() }
         val random = Random()
         for (iteration in 1..10) {

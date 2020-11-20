@@ -1,6 +1,5 @@
 package lesson5
 
-import java.lang.IllegalStateException
 
 /**
  * Множество(таблица) с открытой адресацией на 2^bits элементов без возможности роста.
@@ -81,6 +80,8 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
     private object EMPTY
 
     // Трудоемкость от O(1) до O(N)
+    // в лучшем случае индекс удаляемого элемента равен startingIndex, и выполняется только одна итерация цикла
+    // в худшем случае startingIndex = 0 и элемента в storage нет, таким образом в цикле просматривается весь storage до конца, N итераций
     // Ресурсоемкость O(1)
     override fun remove(element: T): Boolean {
         val startingIndex = element.startingIndex()
@@ -114,7 +115,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
     inner class KtOpenAddressingSetIterator : MutableIterator<T> {
 
         private var index = 0
-        private var current: T? = null
+        private var current = 0
         private var removed = true
 
         init {
@@ -122,6 +123,8 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         }
 
         // Трудоемкость от O(1) до O(N)
+        // в лучшем случае следующий элемент существует, т.е. находится первой итерацией цикла
+        // в худшем случае просмотр storage начинается с нулевого индекса и все элементы удалены (возможно, кроме последнего), т.е. просматривается весь массив
         // Ресурсоемкость O(1)
         private fun calcNextIndex() {   // finds index of next existing element
             while (index < capacity && (storage[index] == null || storage[index] == EMPTY))
@@ -140,19 +143,21 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
             check(hasNext())
             @Suppress("UNCHECKED_CAST")
             val result = storage[index] as T
-            current = result
+            current = index
             index++
             calcNextIndex()
             removed = false // allows removing of current element
             return result
         }
 
-        // Трудоемкость от O(1) до O(N)
+        // Трудоемкость O(1)
         // Ресурсоемкость O(1)
         override fun remove() {
             check(!removed)    // double remove of same element prevention
             removed = true
-            remove(current)
+            storage[current] = EMPTY
+            size--
+            //remove(current)
         }
     }
 }
