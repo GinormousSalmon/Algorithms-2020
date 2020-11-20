@@ -152,9 +152,9 @@ fun Graph.longestSimplePath(): Path {
  * Остальные символы ни в файле, ни в словах не допускаются.
  */
 
-// Трудоемкость O(W * N * L)
+// Трудоемкость O(W * N * L * L)
 // Ресурсоемкость O(W + N + L)
-// W - number of words, N - number of letters, L - average word length
+// W - number of words, N - number of letters in the matrix, L - average word length
 fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
     val data = File(inputName).readLines().map { it.split(' ').map { letter -> letter.first() } }
     val offsets = listOf(Pair(-1, 0), Pair(0, 1), Pair(1, 0), Pair(0, -1))
@@ -163,6 +163,9 @@ fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
         for (lineNumber in data.indices)
             for (letterNumber in data[lineNumber].indices) {
                 val checked = mutableListOf<Pair<Int, Int>>()
+
+                // Трудоемкость O(L)
+                // Ресурсоемкость O(1)
                 fun findNext(y: Int, x: Int, index: Int): Boolean {
                     for ((dy, dx) in offsets) {
                         val newY = y + dy
