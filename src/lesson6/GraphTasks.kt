@@ -152,7 +152,7 @@ fun Graph.longestSimplePath(): Path {
  * Остальные символы ни в файле, ни в словах не допускаются.
  */
 
-// Трудоемкость O(W * N * L * L)
+// Трудоемкость O(W * N * L)
 // Ресурсоемкость O(W + N + L)
 // W - number of words, N - number of letters in the matrix, L - average word length
 fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
