@@ -1,8 +1,6 @@
 package lesson4
 
-import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
-import java.util.*
 
 /**
  * Префиксное дерево для строк
@@ -80,46 +78,106 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
 
     inner class TrieIterator : MutableIterator<String> {
 
-        private val queue: Queue<String> = LinkedList()
-        private var currentKey = ""
-        private var removed = false
+        private var prefix = ""
+        private var hasNextElement = true
+        private var saved = '0'
+        private var nextElement = ""
+        private var risen = false
+        private var savedElement = ""
+        private var alreadyRemoved = false
 
         init {
-            queueFill(root, "")
+            if (root.children.isEmpty())
+                hasNextElement = false
+            else
+                nextElement = getNextElement()
         }
 
         // Трудоемкость O(1)
         // Ресурсоемкость O(1)
-        // string queue pre-fill
-        private fun queueFill(node: Node, prefix: String) {
-            for ((key, value) in node.children) {
-                if (key == 0.toChar())
-                    queue.add(prefix)
-                else
-                    queueFill(value, prefix + key)
-            }
-        }
+        override fun hasNext(): Boolean = hasNextElement
 
-        // Трудоемкость O(1)
-        // Ресурсоемкость O(1)
-        override fun hasNext(): Boolean = queue.isNotEmpty()
-
-        // Трудоемкость O(N)
-        // Ресурсоемкость O(N)
+        // Трудоемкость O(L * (L + C*logC))
+        // Ресурсоемкость O(L * C)
+        // L - average word length, C - average number of children nodes in every node, M - max word len
         override fun next(): String {
-            if (queue.isEmpty()) throw IllegalStateException()
-            currentKey = queue.poll()
-            removed = false
-            return currentKey
+            if (!hasNextElement)
+                throw IllegalStateException()
+            alreadyRemoved = false
+            val result = nextElement
+            savedElement = nextElement
+            nextElement = getNextElement()
+            return result
         }
 
         // Трудоемкость O(N)
         // Ресурсоемкость O(N)
         override fun remove() {
-            if (currentKey == "" || removed) throw IllegalStateException()
-            remove(currentKey)
-            removed = true
+            if (savedElement == "" || alreadyRemoved) throw IllegalStateException()
+            remove(savedElement)
+            alreadyRemoved = true
+        }
+
+        // Трудоемкость O(L * (L + C*logC))
+        // Ресурсоемкость O(L * C)
+        // L - average word length, C - average number of children nodes in every node, M - max word len
+        private fun getNextElement(): String {
+            var currentNode = root
+            for (char in prefix)
+                currentNode = currentNode.children[char]!!
+            if (currentNode.children.isNotEmpty()) {
+                val children = currentNode.children.toList().sortedBy { it.first }
+                if (children[0].first == 0.toChar() && !risen) {
+                    val result = prefix
+                    when {
+                        children.size > 1 -> prefix += children[1].first
+                        prefix == "" -> hasNextElement = false
+                        else -> levelUp()
+                    }
+                    return result
+                } else {
+                    if (risen) {
+                        risen = false
+                        val index = children.indexOfFirst { it.first == saved } + 1
+                        if (children.size == index) {
+                            if (prefix == "") {
+                                hasNextElement = false
+                                return ""
+                            } else {
+                                levelUp()
+                            }
+                        } else {
+                            prefix += children[index].first
+                        }
+                    } else {
+                        prefix += children[0].first
+                    }
+                }
+            } else {
+                levelUp()
+            }
+            return getNextElement()
+        }
+
+        private fun levelUp() {
+            risen = true
+            if (prefix == "")
+                throw IllegalStateException()
+            saved = prefix.last()
+            prefix = prefix.substring(0, prefix.length - 1)
         }
     }
+}
 
+
+fun main() {
+    val trie = KtTrie()
+    trie.add("frffr")
+    trie.add("qw")
+    trie.add("qwe")
+    trie.add("qwer")
+    trie.add("qwerty")
+
+    for (node in trie)
+        println(node)
 }

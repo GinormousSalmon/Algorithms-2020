@@ -1,5 +1,6 @@
 package lesson4
 
+import ru.spbstu.kotlin.generate.util.nextByte
 import java.util.*
 import kotlin.math.abs
 import ru.spbstu.kotlin.generate.util.nextString
@@ -112,8 +113,69 @@ abstract class AbstractTrieTest {
     }
 
     protected fun doIteratorRemoveTest() {
+        // my test
+        implementationTest { create().iterator().hasNext() }
+        implementationTest { create().iterator().next() }
         implementationTest { create().iterator().remove() }
         val random = Random()
+        for (iteration in 1..10) {
+            val depth = random.nextByte()
+            val controlSet = mutableSetOf<String>()
+            // "straight tree"
+            var word = ""
+            for (i in 1..depth) {
+                word += random.nextString("qwertyuiopasdfghjklzxcvbnm", 1, 4)
+                controlSet += word
+            }
+            val trieSet = create()
+            assertFalse(
+                trieSet.iterator().hasNext(),
+                "Iterator of an empty set should not have any next elements."
+            )
+            for (element in controlSet)
+                trieSet += element
+            assertEquals(controlSet.size, trieSet.size)
+
+            val iterator = trieSet.iterator()
+            while (iterator.hasNext()) {
+                val toRemove = iterator.next()
+                if (random.nextBoolean()) {
+                    controlSet.remove(toRemove)
+                    iterator.remove()
+                    assertFailsWith<IllegalStateException>("Trie.remove() was successfully called twice in a row.") {
+                        iterator.remove()
+                    }
+                    assertEquals(
+                        controlSet.size, trieSet.size,
+                        "The size of the set is incorrect: was ${trieSet.size}, should've been ${controlSet.size}."
+                    )
+                    assertFalse(
+                        trieSet.contains(toRemove),
+                        "Trie set has the element $toRemove from the control set after removing."
+                    )
+                }
+            }
+            assertEquals(
+                controlSet.size, trieSet.size,
+                "The size of the set is incorrect: was ${trieSet.size}, should've been ${controlSet.size}."
+            )
+            for (element in controlSet) {
+                assertTrue(
+                    trieSet.contains(element),
+                    "Trie set doesn't have the element $element from the control set."
+                )
+            }
+            for (element in trieSet) {
+                assertTrue(
+                    controlSet.contains(element),
+                    "Trie set has the element $element that is not in control set."
+                )
+            }
+        }
+        // end of my test
+
+
+        implementationTest { create().iterator().remove() }
         for (iteration in 1..100) {
             val controlSet = mutableSetOf<String>()
             val removeIndex = random.nextInt(15) + 1
