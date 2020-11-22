@@ -1,5 +1,9 @@
 package lesson7
 
+import ru.spbstu.kotlin.generate.util.nextChar
+import ru.spbstu.kotlin.typeclass.classes.Monoid.Companion.plus
+import java.util.*
+import kotlin.math.max
 import kotlin.test.assertEquals
 
 abstract class AbstractDynamicTests {
@@ -55,6 +59,23 @@ abstract class AbstractDynamicTests {
                 )
             )
         )
+        // my tests
+        assertEquals(listOf(0), longestIncreasingSubSequence(listOf(0, 0)))
+        assertEquals(listOf(-1), longestIncreasingSubSequence(listOf(-1, -2)))
+        assertEquals(
+            listOf(-5, -4, -3, -2, -1, 0, 10),
+            longestIncreasingSubSequence(listOf(-5, -2, -1, -4, -3, -2, 5, 1, -1, 0, 10))
+        )
+        assertEquals(
+            listOf(-5, -4, -3, -2, -1, 0, 10, 34, 56, 87, 91),
+            longestIncreasingSubSequence(
+                listOf(
+                    -5, 10, -20, -1, -4, 20, -3, -2, 5, 12, -1, 0, 10, 34,
+                    93, 123, 21, 56, 87, 91, 12, 45
+                )
+            )
+        )
+        // end of my tests
     }
 
     fun shortestPathOnField(shortestPathOnField: (String) -> Int) {

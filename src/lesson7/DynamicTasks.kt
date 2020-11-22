@@ -2,6 +2,9 @@
 
 package lesson7
 
+import java.lang.System.currentTimeMillis
+import kotlin.math.max
+
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -30,9 +33,56 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
-fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
-    TODO()
+
+// Трудоемкость O(log(N))
+// Ресурсоемкость O(1)
+fun binarySearch(element: Int, list: List<Int>): Int {
+    var start = 0
+    var end = list.size - 1
+    while (start <= end) {
+        val index = (start + end) / 2
+        when {
+            element > list[index] -> start = index + 1
+            element < list[index] -> end = index - 1
+            else -> return index
+        }
+    }
+    return start
 }
+
+// Трудоемкость O(N + N*log(N))
+// Ресурсоемкость O(N)
+fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
+    val n = list.size
+    if (n == 0) return listOf()
+    if (n == 1) return list
+
+    val data = list.reversed().map { -it }
+    val lasts = (0..n).map { Int.MAX_VALUE }.toMutableList()
+    val positions = (0..n).map { 0 }.toMutableList()
+    val previous = (0 until n).map { 0 }.toMutableList()
+    var length = 0
+    positions[0] = -1
+    lasts[0] = Int.MIN_VALUE
+
+    for (i in 0 until n) {
+        val index = binarySearch(data[i], lasts)
+        if (lasts[index - 1] < data[i] && data[i] < lasts[index]) {
+            lasts[index] = data[i]
+            positions[index] = i
+            previous[i] = positions[index - 1]
+            length = max(length, index)
+        }
+    }
+    val answer = mutableListOf<Int>()
+    var p = positions[length]
+    while (p != -1) {
+        answer.add(data[p])
+        p = previous[p]
+    }
+    return answer.map { -it }
+}
+
 
 /**
  * Самый короткий маршрут на прямоугольном поле.
@@ -60,3 +110,4 @@ fun shortestPathOnField(inputName: String): Int {
 
 // Задачу "Максимальное независимое множество вершин в графе без циклов"
 // смотрите в уроке 5
+

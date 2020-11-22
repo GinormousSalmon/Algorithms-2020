@@ -1,6 +1,5 @@
 package lesson5
 
-import ru.spbstu.kotlin.generate.util.nextByte
 import ru.spbstu.kotlin.generate.util.nextString
 import java.util.*
 import kotlin.math.abs
