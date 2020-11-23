@@ -2,8 +2,9 @@
 
 package lesson7
 
-import java.lang.System.currentTimeMillis
+import java.io.File
 import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Наибольшая общая подпоследовательность.
@@ -104,8 +105,25 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
  *
  * Здесь ответ 2 + 3 + 4 + 1 + 2 = 12
  */
+
+// Трудоемкость O(N * M + N)
+// Ресурсоемкость O(N * M + M)
+// N - количество строк, M - количество столбцов
 fun shortestPathOnField(inputName: String): Int {
-    TODO()
+    val file = File(inputName).readLines()
+    val costs = (file.first().split(' ').indices).map { Int.MAX_VALUE }.toMutableList()
+    costs[0] = 0
+    for (string in file) {
+        val data = string.split(' ').map { it.toInt() }
+        var saved = costs[0]
+        costs[0] += data[0]
+        for (i in 1 until costs.size) {
+            val a = costs[i]
+            costs[i] = data[i] + min(costs[i - 1], min(costs[i], saved))
+            saved = a
+        }
+    }
+    return costs.last()
 }
 
 // Задачу "Максимальное независимое множество вершин в графе без циклов"

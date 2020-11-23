@@ -85,6 +85,10 @@ abstract class AbstractDynamicTests {
         assertEquals(28, shortestPathOnField("input/field_in4.txt"))
         assertEquals(222, shortestPathOnField("input/field_in5.txt"))
         assertEquals(15, shortestPathOnField("input/field_in6.txt"))
+        // my tests
+        assertEquals(0, shortestPathOnField("input/field_in7.txt"))
+        assertEquals(46663, shortestPathOnField("input/field_in8.txt"))
+        // end of my tests
     }
 
 }
