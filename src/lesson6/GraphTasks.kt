@@ -119,8 +119,23 @@ fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
  *
  * Ответ: A, E, J, K, D, C, H, G, B, F, I
  */
+
+// Трудоемкость O(N^2)
+// Ресурсоемкость от O(N) до O(N * K)
+// Лучший случай - у каждой вершины нет соседей, худший - все соединены со всеми
+// N - количество вершин, K - среднее количество соседей у каждой вершины
 fun Graph.longestSimplePath(): Path {
-    TODO()
+    if (vertices.isEmpty())
+        return Path()
+    val paths: Queue<Path> = LinkedList(vertices.map { Path(it) })
+    var longestPath = Path()
+    while (paths.size != 1) {
+        longestPath = paths.poll()
+        for (neighbor in getNeighbors(longestPath.vertices.last()))
+            if (!longestPath.contains(neighbor))
+                paths.add(Path(longestPath, this, neighbor))
+    }
+    return longestPath
 }
 
 /**
