@@ -203,12 +203,11 @@ fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
                 }
                 if (data[lineNumber][letterNumber] == word.first()) {
                     checked.add(Pair(lineNumber, letterNumber))
-                    if (findNext(lineNumber, letterNumber, 1))
+                    if (word.length == 1 || findNext(lineNumber, letterNumber, 1))
                         result.add(word)
                 }
             }
     }
-    println("result $result")
     return result
 }
 
